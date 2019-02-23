@@ -1,0 +1,16 @@
+version: "3.2"
+services:
+  ec-api:
+    container_name: ec-api
+    build:
+      context: ../
+      dockerfile: ./docker/dockerfile.dev
+    image: ec-api:dev
+    environment:
+      NODE_ENV: "development"
+      PORT: 8888
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../:/var/www/ec-api
+    restart: always

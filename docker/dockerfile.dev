@@ -1,0 +1,11 @@
+# Node 10.x
+FROM node:10-alpine
+
+# Add bin deps to image.
+RUN apk update && apk add bash
+
+# Create app directory.
+WORKDIR /var/www/ec-api
+
+# Run and restart on changes.
+CMD npx nodemon --exec "npx babel-node ./src/index.js"

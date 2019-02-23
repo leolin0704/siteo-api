@@ -1,0 +1,14 @@
+version: "3.2"
+services:
+  ec-api:
+    container_name: ec-api
+    build:
+      context: ../
+      dockerfile: ./docker/dockerfile.test
+    image: ec-api:test
+    environment:
+      NODE_ENV: "test"
+      PORT: 8888
+    ports:
+      - "8888:8888"
+    restart: always

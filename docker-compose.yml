@@ -1,0 +1,4 @@
+version: "3.2"
+
+# Only used to support sub docker-compose config files.
+# @see https://github.com/docker/compose/issues/3874#issuecomment-309621582

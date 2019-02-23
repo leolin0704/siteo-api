@@ -1,0 +1,38 @@
+{
+  "name": "ec-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:start": "nodemon --exec \"npx babel-node ./src/index.js\"",
+    "build": "rimraf dist && babel src --out-dir dist --copy-files",
+    "start": "pm2 delete ec-api; pm2 start dist/index.js --name=\"ec-api\""
+  },
+  "author": "Leo Lin",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "7.2.0",
+    "@babel/core": "7.2.0",
+    "@babel/node": "7.2.2",
+    "@babel/plugin-proposal-class-properties": "7.2.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "7.2.0",
+    "@babel/runtime": "^7.3.1",
+    "eslint": "5.9.0",
+    "nodemon": "^1.18.9",
+    "pm2": "^3.2.9",
+    "rimraf": "^2.6.3"
+  },
+  "dependencies": {
+    "@babel/polyfill": "7.2.5",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "4.16.4",
+    "immer": "1.8.0",
+    "lodash": "4.17.11",
+    "mysql2": "^1.6.5",
+    "redis": "^2.8.0",
+    "sequelize": "^4.42.0",
+    "uuid": "3.3.2"
+  }
+}

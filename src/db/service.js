@@ -23,7 +23,7 @@ export const getAddressList = () => {
 };
 
 export const getItemList = () => {
-  return item.find(wrapQuery());
+  return item.findAll(wrapQuery());
 };
 
 export const getItem = (id) => {
@@ -31,17 +31,17 @@ export const getItem = (id) => {
 };
 
 export const getOrderList = () => {
-  return order.find(wrapQuery());
+  return order.findAll(wrapQuery());
 };
 
 export const getShippingList = () => {
-  return shipping.find(wrapQuery());
+  return shipping.findAll(wrapQuery());
 };
 
 export const addShipping = (target) => {
   return shipping.create({
     ...baseModel,
-    target
+    ...target
   });
 };
 

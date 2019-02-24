@@ -10,7 +10,7 @@ export const getList = async (req, res, next) => {
 
 export const add = async (req, res, next) => {
   const newShipping = {
-    shippingName: req.param("shippingName")
+    shippingName: req.body.shippingName,
   }
   addShipping(newShipping).then(results => {
     console.log(results)

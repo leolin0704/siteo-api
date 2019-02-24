@@ -2,14 +2,14 @@ import map from 'lodash/map';
 import { baseModel } from '../db/consts';
 import { generateOrderNumber } from '../utils/helpers';
 import { mapViewModel } from '../utils/helpers';
-import { order, address,  item, orderItem } from '../db/orm';
+import { getAddress, getItemListByItemNumbers, getOrderList, addOrder, addOrderItem, getOrderItemByOrder } from '../db/service';
+
 export const getList = async (req, res, next) => {
-  order.find({isDeleted:0}, (err, results) => {
+  getOrderList().then(results => {
     res.send(mapViewModel(results));
     res.end();
   });
 }
-
 
 export const submit = async (req, res, next) => {
   try {
@@ -21,26 +21,27 @@ export const submit = async (req, res, next) => {
       orderStatus: 'paid',
     }
 
-    address.find({id:addressId}, (err, [result]) => {
-      if(!result) {
+    getAddress(addressId).then(currentAddress => {
+      console.log(currentAddress)
+      if(!currentAddress) {
         res.status(412).send('Invalid addressId');
         res.end();
         return;
       }
 
       order.userAccount = req.currentUser.account;
-      order.contactName = result.contactName;
-      order.contactPhone = result.contactPhone;
-      order.address = result.address;
+      order.contactName = currentAddress.contactName;
+      order.contactPhone = currentAddress.contactPhone;
+      order.address = currentAddress.address;
 
       const paramItemList = req.body.items;
       const itemNumbers = map(paramItemList, item => {
         return item.itemNumber;
       });
 
-      item.find({itemNumber: itemNumbers}, (err, items) => {
+      getItemListByItemNumbers(itemNumbers).then(items => {
         if(!items || items.length === 0) {
-          res.status(412).send('Invalid itemNumber');
+          res.status(412).send('Invalid itemNumbers');
           res.end();
           return;
         }
@@ -55,7 +56,7 @@ export const submit = async (req, res, next) => {
         order.submitDate = new Date();
         order.payDate = new Date();
 
-        order.create(order, (err, createdOrder) => {
+        addOrder(order).then(createdOrder => {
           createOrderItemCallback(req, res, items, createdOrder, paramItemList, 0);
         });
       });
@@ -83,14 +84,14 @@ const createOrderItemCallback = (req, res, items, createdOrder, paramItemList, i
       itemPic: item.itemPic,
     }
 
-    orderItem.create(orderItem, (err, result) => {
+    addOrderItem(orderItem).then(result => {
         createOrderItemCallback(req, res, items, createdOrder, paramItemList, index + 1);
     });
   }
 }
 
 export const getOrderItem = async (req, res, next) => {
-  orderItem.find({isDeleted:0, orderNumber: req.params.orderNumber}, (err, results) => {
+  getOrderItemByOrder(req.params.orderNumber).then(results => {
     res.send(mapViewModel(results));
     res.end();
   });

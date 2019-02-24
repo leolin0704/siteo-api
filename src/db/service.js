@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import { baseModel } from './consts'
-import { address, item , order, shipping} from './orm';
+import { address, item , order, shipping, orderItem } from './orm';
 
 const Op = Sequelize.Op;
 
@@ -22,8 +22,16 @@ export const getAddressList = () => {
   return address.findAll(wrapQuery());
 };
 
+export const getAddress = (id) => {
+  return address.find(wrapQuery({id}));
+};
+
 export const getItemList = () => {
   return item.findAll(wrapQuery());
+};
+
+export const getItemListByItemNumbers = (itemNumbers) => {
+  return item.findAll(wrapQuery({itemNumber:itemNumbers}));
 };
 
 export const getItem = (id) => {
@@ -43,5 +51,23 @@ export const addShipping = (target) => {
     ...baseModel,
     ...target
   });
+};
+
+export const addOrder = (target) => {
+  return order.create({
+    ...baseModel,
+    ...target
+  });
+};
+
+export const addOrderItem = (target) => {
+  return orderItem.create({
+    ...baseModel,
+    ...target
+  });
+};
+
+export const getOrderItemByOrder = (orderNumber) => {
+  return orderItem.find(wrapQuery({orderNumber}));
 };
 

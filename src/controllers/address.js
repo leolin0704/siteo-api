@@ -1,5 +1,5 @@
 import { mapViewModel } from '../utils/helpers';
-import { getAddressList } from '../db/service';
+import { getAddressList } from '../services/address';
 
 export const getList = async (req, res, next) => {
   getAddressList().then((results) => {

@@ -1,5 +1,5 @@
 import { mapViewModel } from '../utils/helpers';
-import { getItem, getItemList } from '../db/service';
+import { getItem, getItemList } from '../services/item';
 export const getList = async (req, res, next) => {
   getItemList().then((results) => {
     res.send(mapViewModel(results));

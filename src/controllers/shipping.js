@@ -1,5 +1,5 @@
 import { mapViewModel } from '../utils/helpers';
-import { getShippingList, addShipping } from '../db/service';
+import { getShippingList, addShipping } from '../services/shipping';
 
 export const getList = async (req, res, next) => {
   getShippingList().then(results => {

@@ -1,8 +1,10 @@
 import map from 'lodash/map';
-import { baseModel } from '../db/consts';
 import { generateOrderNumber } from '../utils/helpers';
 import { mapViewModel } from '../utils/helpers';
-import { getAddress, getItemListByItemNumbers, getOrderList, addOrder, addOrderItem, getOrderItemByOrder } from '../db/service';
+import { getItemListByItemNumbers } from '../services/item';
+import { getOrderList, addOrder, shipOrder } from '../services/order';
+import { getAddress } from '../services/address';
+import { getOrderItemByOrder } from '../services/orderItem';
 
 export const getList = async (req, res, next) => {
   getOrderList().then(results => {
@@ -13,9 +15,9 @@ export const getList = async (req, res, next) => {
 
 export const submit = async (req, res, next) => {
   try {
+
     const addressId = parseInt(req.body.addressId);
     const order = {
-      ...baseModel,
       orderNumber: generateOrderNumber(),
       message: req.body.message,
       orderStatus: 'paid',
@@ -39,6 +41,9 @@ export const submit = async (req, res, next) => {
         return item.itemNumber;
       });
 
+      console.log(paramItemList,'------------')
+
+
       getItemListByItemNumbers(itemNumbers).then(items => {
         if(!items || items.length === 0) {
           res.status(412).send('Invalid itemNumbers');
@@ -51,42 +56,33 @@ export const submit = async (req, res, next) => {
           const item = items[index];
           totalAmount += item.itemPrice * paramItemList[index].quantity;
         }
+
+        console.log(totalAmount,'------------')
     
         order.totalAmount = totalAmount;
         order.submitDate = new Date();
         order.payDate = new Date();
 
-        addOrder(order).then(createdOrder => {
-          createOrderItemCallback(req, res, items, createdOrder, paramItemList, 0);
+        const orderItems = map(items, (item, index) => {
+          return {
+            itemNumber: item.itemNumber,
+            quantity:  paramItemList[index].quantity,
+            itemPrice: item.itemPrice,
+            itemName: item.itemName,
+            itemPic: item.itemPic,
+          }
+        })
+
+
+        addOrder(order, orderItems).then(createdOrder => {
+          res.send(createdOrder);
+          res.end();
         });
       });
     });
   } catch {
     res.sendStatus(500);
     res.end();
-  }
-}
-
-const createOrderItemCallback = (req, res, items, createdOrder, paramItemList, index) => {
-  if(items.length <= index) {
-    res.send(createdOrder);
-    res.end();
-  } else {
-    const item  = items[index];
-
-    const orderItem = {
-      ...baseModel,
-      orderNumber: createdOrder.orderNumber,
-      itemNumber: item.itemNumber,
-      quantity:  paramItemList[index].quantity,
-      itemPrice: item.itemPrice,
-      itemName: item.itemName,
-      itemPic: item.itemPic,
-    }
-
-    addOrderItem(orderItem).then(result => {
-        createOrderItemCallback(req, res, items, createdOrder, paramItemList, index + 1);
-    });
   }
 }
 
@@ -98,18 +94,9 @@ export const getOrderItem = async (req, res, next) => {
 }
 
 export const ship = async (req, res, next) => {
-  order.one({orderNumber: req.body.orderNumber}, (err, order) => {
-    order.shippingId = req.body.shippingId;
-
-    shipping.one({id: req.body.shippingId}, (err, shipping) => {
-      order.shippingName = shipping.shippingName;
-      order.shippingNumber = req.body.shippingNumber;
-      order.shippingDate = new Date();
-      order.orderStatus = 'shipped';
-      order.save();
-  
-      res.send(order);
-      res.end();
-    });
+  const { orderNumber, shippingId, shippingNumber } = req.body;
+  shipOrder(orderNumber, shippingId,  shippingNumber).then(shippedOrder => {
+    res.send(shippedOrder);
+    res.end();
   });
 }
